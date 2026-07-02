@@ -36,20 +36,38 @@
   .wrap{max-width:920px;margin:0 auto;padding:0 16px 120px}
 
 :root{--side:236px;--maxw:860px;--shellw:calc(var(--side) + var(--maxw) + 32px)}
-  /* Top bar */
-  header.top{background:var(--ink);color:var(--paper);padding:16px 0 14px;position:relative;overflow:hidden}
-  header.top:before{content:"";position:absolute;inset:0;
-    background:radial-gradient(circle at 92% -30%, rgba(192,40,44,.34), transparent 40%)}
-  .top-in{max-width:var(--shellw);margin:0 auto;padding:0 18px;position:relative}
-  .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;position:relative}
-  .brand .jp{font-family:"Anton";font-size:12px;letter-spacing:3px;color:var(--red);
-    writing-mode:vertical-rl;position:absolute;right:0;top:-2px;opacity:.9}
-  .brand h1{font-family:"Anton";font-size:clamp(26px,6vw,40px);letter-spacing:1px;
-    text-transform:uppercase;line-height:.95}
-  .brand .sub{color:#c9c3b6;font-size:13px;max-width:44ch;align-self:center}
+
+  /* Texture washi discrète sur tout le fond */
+  body{position:relative}
+  body:before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity:.6}
+  .shell,nav.nav{position:relative;z-index:1}
+
+  /* Sceau (hanko) — marque de la maison, tient lieu d'ancien bandeau */
+  .hanko{flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:50%;background:var(--red);color:#fff;
+    font-family:"Anton";font-size:14px;letter-spacing:0;border:none;cursor:pointer;
+    box-shadow:0 3px 8px rgba(192,40,44,.35);margin:2px 9px 2px 1px}
+  .hanko:active{transform:scale(.94)}
+  @media(min-width:980px){
+    .hanko{width:46px;height:46px;font-size:17px;margin:0 0 16px 2px}
+  }
+  .nav-sep{flex:0 0 auto;width:1px;align-self:stretch;background:var(--line);margin:6px 2px}
+  @media(min-width:980px){.nav-sep{width:auto;height:1px;margin:0 2px 14px}}
+
+  /* En-tête de page : kanji vertical + eyebrow/titre */
+  .page-head{display:flex;align-items:flex-start;gap:13px;margin-bottom:2px}
+  .kanji-tag{writing-mode:vertical-rl;font-family:"Anton";font-size:12px;letter-spacing:4px;
+    color:var(--red);opacity:.55;line-height:1;padding-top:5px;flex:0 0 auto;user-select:none}
+
+  /* Liseré vagues (seigaiha simplifié) sous le titre de page */
+  .wave-divider{height:9px;margin:10px 0 18px;background-repeat:repeat-x;background-size:18px 13px;
+    background-image:radial-gradient(circle at 9px -5px, transparent 7px, var(--line) 7px, var(--line) 8px, transparent 8px);
+    opacity:.8}
 
   /* Shell + content */
-  .shell{max-width:var(--shellw);margin:0 auto;padding:20px 18px 0;display:grid;grid-template-columns:1fr;gap:22px}
+  .shell{max-width:var(--shellw);margin:0 auto;padding:30px 18px 0;display:grid;grid-template-columns:1fr;gap:22px}
   .content{min-width:0;padding-bottom:118px}
 
   /* Nav — mobile = barre du bas */
@@ -192,16 +210,6 @@
   .reset{background:none;border:none;color:var(--muted);text-decoration:underline;font-size:12px;cursor:pointer}
 </style>
 
-<header class="top">
-  <div class="top-in">
-    <div class="brand">
-      <span class="jp">東京</span>
-      <h1>Cap sur Tokyo</h1>
-      <span class="sub">Le stage de Edesse, notre vie là-bas. Tout au même endroit — et on voit tous les deux où on en est.</span>
-    </div>
-  </div>
-</header>
-
 <div class="shell">
   <nav class="nav" id="tabs"></nav>
   <main class="content">
@@ -307,14 +315,15 @@ const TABS=[
   ["carte","Carte & lieux","📍"],["adresses","Bonnes adresses","🍜"]
 ];
 function buildTabs(){
-  document.getElementById("tabs").innerHTML = TABS.map(t=>
+  const hanko = `<button class="hanko" data-go="accueil" title="Cap sur Tokyo" aria-label="Accueil">東</button><span class="nav-sep" aria-hidden="true"></span>`;
+  document.getElementById("tabs").innerHTML = hanko + TABS.map(t=>
     `<button data-go="${t[0]}"><span class="ic">${t[2]}</span><span class="lb">${t[1]}</span></button>`).join("");
   document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>show(b.dataset.go));
 }
 let current="accueil";
 function show(tab){
   current=tab; location.hash=tab;
-  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.go===tab));
+  document.querySelectorAll("#tabs button:not(.hanko)").forEach(b=>b.classList.toggle("on",b.dataset.go===tab));
   document.querySelectorAll("section.panel").forEach(p=>p.classList.toggle("on",p.dataset.tab===tab));
   const ab=document.querySelector("#tabs button.on"); if(ab) try{ab.scrollIntoView({inline:"center",block:"nearest"});}catch(e){}
   if(tab==="carte") setTimeout(initMap,60);
@@ -350,8 +359,8 @@ function renderAccueil(){
   }).join("") : `<div class="empty">Aucune date posée encore. Va dans Échéances pour en ajouter.</div>`;
 
   P("accueil").innerHTML = `
-    <div class="eyebrow">Tableau de bord</div>
-    <h2>Où on en est</h2>
+    <div class="page-head"><span class="kanji-tag">旅程</span><div><div class="eyebrow">Tableau de bord</div><h2>Où on en est</h2></div></div>
+    <div class="wave-divider"></div>
     <p class="lead">Plus la barre avance, plus on se rapproche de Tokyo. Chaque tâche cochée fait décoller l'avion.</p>
 
     <div class="voyage">
@@ -443,8 +452,8 @@ function renderAfaire(){
   });
   if(!body) body=`<div class="empty">Rien pour ce filtre.</div>`;
   P("afaire").innerHTML=`
-    <div class="eyebrow">Nos recherches</div>
-    <h2>À faire</h2>
+    <div class="page-head"><span class="kanji-tag">準備</span><div><div class="eyebrow">Nos recherches</div><h2>À faire</h2></div></div>
+    <div class="wave-divider"></div>
     <p class="lead">Coche au fur et à mesure. La couleur dit qui s'en occupe.</p>
     <div class="chips" id="whoChips">
       ${["Tous","Loan","Edesse","Les deux"].map(w=>`<button class="chip ${filterWho===w?"on":""}" data-who="${w}">${w}</button>`).join("")}
@@ -498,8 +507,8 @@ function renderEcheances(){
       <button class="del" data-deldl="${d.id}">×</button></div>`;
   }).join("") : `<div class="empty">Aucune échéance.</div>`;
   P("echeances").innerHTML=`
-    <div class="eyebrow">Calendrier</div>
-    <h2>Échéances</h2>
+    <div class="page-head"><span class="kanji-tag">期限</span><div><div class="eyebrow">Calendrier</div><h2>Échéances</h2></div></div>
+    <div class="wave-divider"></div>
     <p class="lead">Pose une date sur chaque étape : le compte à rebours s'occupe du reste.</p>
     <div class="card">${body}</div>
     <div class="add">
@@ -532,9 +541,9 @@ function renderBudget(){
       <td class="num"><button class="del" data-delbud="${i.id}">×</button></td>
     </tr>`).join("");
   P("budget").innerHTML=`
-    <div class="eyebrow">Estimation</div>
-    <h2>Budget</h2>
-    <p class="lead">Pré-rempli avec des coûts Tokyo 2026 réalistes (à deux). Ajuste chaque ligne, le total se recalcule.</p>
+    <div class="page-head"><span class="kanji-tag">予算</span><div><div class="eyebrow">Estimation</div><h2>Budget</h2></div></div>
+    <div class="wave-divider"></div>
+    <p class="lead">Ajoute vos postes de dépenses prévues (à deux), le total se recalcule tout seul.</p>
     <div class="settings-row">
       <label>Durée <input id="bMonths" type="number" min="1" max="3" value="${b.months}"> mois</label>
       <label>1 € ≈ <input id="bRate" type="number" value="${b.rate}"> ¥</label>
@@ -582,8 +591,8 @@ function renderDepenses(){
     else settle=`Loan doit <strong>${eur(-bal.diff)}</strong> à Edesse`;
   }
   P("depenses").innerHTML=`
-    <div class="eyebrow">Suivi réel</div>
-    <h2>Dépenses</h2>
+    <div class="page-head"><span class="kanji-tag">出費</span><div><div class="eyebrow">Suivi réel</div><h2>Dépenses</h2></div></div>
+    <div class="wave-divider"></div>
     <p class="lead">Note ce qui est payé et par qui. L'équilibrage entre vous deux se calcule tout seul.</p>
     <div class="grid g3">
       <div class="stat red"><div class="k">Total dépensé</div><div class="v">${eur(bal.total)}</div></div>
@@ -633,8 +642,8 @@ function renderCarte(){
     });
   });
   P("carte").innerHTML=`
-    <div class="eyebrow">Repérage</div>
-    <h2>Carte & lieux</h2>
+    <div class="page-head"><span class="kanji-tag">地図</span><div><div class="eyebrow">Repérage</div><h2>Carte & lieux</h2></div></div>
+    <div class="wave-divider"></div>
     <p class="lead">Pose tes points : à visiter, logements potentiels, l'entreprise de Edesse. Chaque lieu s'ouvre dans Google Maps.</p>
     <div id="map"></div>
     <div class="map-note">Astuce : pour placer un point précis, ouvre Google Maps, clic droit sur l'endroit → clique sur les chiffres (coordonnées) pour les copier, puis colle-les ci-dessous.</div>
@@ -688,8 +697,8 @@ function renderDefis(){
       <div class="txt">${esc(d.text)}</div>
       <button class="del" data-deldf="${d.id}">×</button></div>`).join("") || `<div class="empty">Ajoute un premier défi 👇</div>`;
   P("defis").innerHTML=`
-    <div class="eyebrow">Nos envies</div>
-    <h2>Défis à relever</h2>
+    <div class="page-head"><span class="kanji-tag">挑戦</span><div><div class="eyebrow">Nos envies</div><h2>Défis à relever</h2></div></div>
+    <div class="wave-divider"></div>
     <p class="lead">Notre to-do plaisir. On coche dès qu'on l'a vécu — et la barre se remplit.</p>
     <div class="voyage" style="padding:16px">
       <div class="cap"><span>Défis relevés</span><span class="pct" style="color:var(--red)">${done}/${tot}</span></div>
@@ -734,8 +743,8 @@ function renderAdresses(){
     });
   });
   P("adresses").innerHTML=`
-    <div class="eyebrow">Carnet</div>
-    <h2>Bonnes adresses</h2>
+    <div class="page-head"><span class="kanji-tag">名店</span><div><div class="eyebrow">Carnet</div><h2>Bonnes adresses</h2></div></div>
+    <div class="wave-divider"></div>
     <p class="lead">Les pépites qu'on repère ou qu'on teste, rangées par catégorie. ❤ = coup de cœur.</p>
     <div class="chips">${["Toutes",...ACATS].map(c=>`<button class="chip ${aFilter===c?"on":""}" data-acat="${c}">${c}</button>`).join("")}</div>
     <div class="card">${body||`<div class="empty">Aucune adresse pour ce filtre.</div>`}</div>
