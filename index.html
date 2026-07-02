@@ -197,7 +197,7 @@
     <div class="brand">
       <span class="jp">東京</span>
       <h1>Cap sur Tokyo</h1>
-      <span class="sub">Le stage de Loan, notre vie là-bas. Tout au même endroit — et on voit tous les deux où on en est.</span>
+      <span class="sub">Le stage de Edesse, notre vie là-bas. Tout au même endroit — et on voit tous les deux où on en est.</span>
     </div>
   </div>
 </header>
@@ -233,13 +233,13 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getFirestore(fbApp);
-// Un seul document partagé entre Edesse et Loan, mis à jour en temps réel
-const TRIP_REF = doc(db, "voyages", "japon");
+// Un seul document partagé entre Loan et Edesse, mis à jour en temps réel
+const TRIP_REF = doc(db, "voyages", "edesse-loan");
 const KEYS = ["todos","deadlines","budget","expenses","places","defis","adresses"];
 
 const uid = ()=>Math.random().toString(36).slice(2,9);
 const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
-const whoCls = w => w==="Edesse"?"who-d":w==="Loan"?"who-m":"who-x";
+const whoCls = w => w==="Loan"?"who-d":w==="Edesse"?"who-m":"who-x";
 const eur = n => Math.round(n).toLocaleString("fr-FR")+" €";
 
 let suppressSnapshot = false;
@@ -256,77 +256,13 @@ async function save(key, val){
 
 /* ---------- seeds ---------- */
 const SEED = {
-  todos:[
-    {id:uid(),cat:"Admin & visa",who:"Les deux",done:false,important:true,text:"Vérifier le séjour : stage rémunéré = visa de travail pour Loan ; sinon exemption < 90 jours. À confirmer auprès de l'ambassade du Japon."},
-    {id:uid(),cat:"Admin & visa",who:"Les deux",done:false,text:"Vérifier la validité des passeports"},
-    {id:uid(),cat:"Admin & visa",who:"Edesse",done:false,text:"Souscrire une assurance voyage longue durée (2 pers.)"},
-    {id:uid(),cat:"Admin & visa",who:"Les deux",done:false,text:"Carte bancaire sans frais à l'étranger + prévoir du change en yens"},
-    {id:uid(),cat:"Vols",who:"Les deux",done:false,text:"Comparer les vols A/R CDG–Tokyo (Haneda ou Narita)"},
-    {id:uid(),cat:"Vols",who:"Les deux",done:false,text:"Réserver les billets d'avion"},
-    {id:uid(),cat:"Logement",who:"Les deux",done:false,text:"Choisir le quartier (proche du lieu de stage de Loan)"},
-    {id:uid(),cat:"Logement",who:"Edesse",done:false,text:"Comparer share houses / appart meublé : Oakhouse, Sakura House, monthly mansion"},
-    {id:uid(),cat:"Logement",who:"Les deux",done:false,text:"Réserver le logement"},
-    {id:uid(),cat:"Sur place",who:"Les deux",done:false,text:"Carte Suica / Pasmo (transports)"},
-    {id:uid(),cat:"Sur place",who:"Les deux",done:false,text:"Forfait mobile / eSIM (IIJmio, Rakuten…)"},
-    {id:uid(),cat:"Sur place",who:"Edesse",done:false,text:"Repérer supermarché + laverie près du logement"},
-    {id:uid(),cat:"Loan / stage",who:"Loan",done:false,text:"Confirmer les dates et l'adresse exacte du stage"},
-    {id:uid(),cat:"Loan / stage",who:"Loan",done:false,text:"Vérifier si l'entreprise propose un logement"},
-    {id:uid(),cat:"Edesse",who:"Edesse",done:false,text:"Lister les activités et visites pour mes journées"},
-    {id:uid(),cat:"Edesse",who:"Edesse",done:false,text:"Voir le télétravail / projets perso possibles sur place"}
-  ],
-  deadlines:[
-    {id:uid(),label:"Confirmer les dates du stage de Loan",date:null,done:false},
-    {id:uid(),label:"Vérifier le visa / séjour > 90 jours",date:null,done:false},
-    {id:uid(),label:"Réserver les vols (3–4 mois avant)",date:null,done:false},
-    {id:uid(),label:"Réserver le logement (3–6 mois avant)",date:null,done:false},
-    {id:uid(),label:"Souscrire l'assurance voyage",date:null,done:false}
-  ],
-  budget:{months:3, rate:165, items:[
-    {id:uid(),label:"Vols A/R (2 pers.)",cat:"Transport",type:"ponctuel",amount:1500},
-    {id:uid(),label:"Assurance voyage (2 pers.)",cat:"Admin",type:"ponctuel",amount:250},
-    {id:uid(),label:"Frais d'installation logement",cat:"Logement",type:"ponctuel",amount:200},
-    {id:uid(),label:"Équipement & divers à l'arrivée",cat:"Divers",type:"ponctuel",amount:150},
-    {id:uid(),label:"Logement",cat:"Logement",type:"mensuel",amount:1300},
-    {id:uid(),label:"Courses & restaurants",cat:"Nourriture",type:"mensuel",amount:500},
-    {id:uid(),label:"Transport (2 pass)",cat:"Transport",type:"mensuel",amount:150},
-    {id:uid(),label:"Charges (élec/gaz/eau/wifi)",cat:"Logement",type:"mensuel",amount:100},
-    {id:uid(),label:"Forfaits mobile (2)",cat:"Admin",type:"mensuel",amount:40},
-    {id:uid(),label:"Loisirs & sorties",cat:"Loisirs",type:"mensuel",amount:250},
-    {id:uid(),label:"Voyages au Japon (week-ends)",cat:"Loisirs",type:"mensuel",amount:200}
-  ]},
+  todos:[],
+  deadlines:[],
+  budget:{months:3, rate:165, items:[]},
   expenses:[],
-  places:[
-    {id:uid(),name:"Shibuya Crossing",cat:"À visiter",address:"Shibuya, Tokyo",lat:35.6595,lng:139.7005,link:"",notes:"Le carrefour mythique",status:"Idée"},
-    {id:uid(),name:"Senso-ji",cat:"À visiter",address:"Asakusa, Taito, Tokyo",lat:35.7148,lng:139.7967,link:"",notes:"Temple + rue Nakamise",status:"Idée"},
-    {id:uid(),name:"Shinjuku Gyoen",cat:"À visiter",address:"Shinjuku, Tokyo",lat:35.6852,lng:139.7100,link:"",notes:"Grand parc, pause au calme",status:"Idée"},
-    {id:uid(),name:"Parc Yoyogi",cat:"À visiter",address:"Shibuya, Tokyo",lat:35.6720,lng:139.6949,link:"",notes:"À côté du sanctuaire Meiji",status:"Idée"},
-    {id:uid(),name:"Oakhouse / Sakura House — à comparer",cat:"Logement",address:"Tokyo",lat:null,lng:null,link:"https://www.oakhouse.jp/fra/area/tokyo",notes:"Share houses meublées, sans frais d'entrée",status:"À voir"},
-    {id:uid(),name:"Lieu du stage de Loan — à placer",cat:"Entreprise",address:"",lat:null,lng:null,link:"",notes:"Coller les coordonnées dès que connu",status:"À confirmer"}
-  ],
-  defis:[
-    {id:uid(),done:false,text:"Manger un vrai ramen à un petit comptoir"},
-    {id:uid(),done:false,text:"Tester un conbini (7-Eleven) au petit matin"},
-    {id:uid(),done:false,text:"Karaoké à deux jusqu'à pas d'heure"},
-    {id:uid(),done:false,text:"Se baigner dans un onsen ou un sento"},
-    {id:uid(),done:false,text:"Apercevoir le mont Fuji"},
-    {id:uid(),done:false,text:"Traverser le carrefour de Shibuya de nuit"},
-    {id:uid(),done:false,text:"Commander au hasard dans un izakaya"},
-    {id:uid(),done:false,text:"Chiner dans les friperies de Shimokitazawa / Koenji (pour Edesse)"},
-    {id:uid(),done:false,text:"Fouiller l'électronique à Akihabara (pour Loan)"},
-    {id:uid(),done:false,text:"Pique-niquer sous les arbres dans un parc"},
-    {id:uid(),done:false,text:"Goûter un max de street food à un matsuri"},
-    {id:uid(),done:false,text:"Partir un week-end hors de Tokyo (Kyoto, Hakone, Kamakura…)"},
-    {id:uid(),done:false,text:"Faire une photo argentique d'une ruelle de Tokyo (pour Edesse)"},
-    {id:uid(),done:false,text:"Aller voir un concert / live local"},
-    {id:uid(),done:false,text:"Manger des sushis au comptoir"},
-    {id:uid(),done:false,text:"Trouver notre café préféré du quartier"}
-  ],
-  adresses:[
-    {id:uid(),name:"Shimokitazawa",cat:"Shopping & friperies",area:"Setagaya",note:"Quartier friperies & vintage (pour Edesse)",link:"",fav:false},
-    {id:uid(),name:"7-Eleven / Lawson / FamilyMart",cat:"Conbini & courses",area:"partout",note:"Retraits cash, onigiri, repas express 24h/24",link:"",fav:false},
-    {id:uid(),name:"Notre ramen préféré",cat:"Restos",area:"",note:"À noter dès qu'on l'a trouvé",link:"",fav:false},
-    {id:uid(),name:"Notre café de quartier",cat:"Cafés & douceurs",area:"",note:"À dénicher une fois sur place",link:"",fav:false}
-  ]
+  places:[],
+  defis:[],
+  adresses:[]
 };
 
 /* ---------- state ---------- */
@@ -354,7 +290,7 @@ async function boot(){
   renderAll();
   show(location.hash.replace("#","")||"accueil");
 
-  // Synchronisation en temps réel entre les deux appareils (Edesse / Loan)
+  // Synchronisation en temps réel entre les deux appareils (Loan / Edesse)
   onSnapshot(TRIP_REF, (snap)=>{
     if(suppressSnapshot) return;
     if(!snap.exists()) return;
@@ -395,7 +331,7 @@ function budgetTotals(){
 }
 const spentTotal=()=>S.expenses.reduce((s,e)=>s+(+e.amount||0),0);
 function balance(){
-  let d=0,m=0; S.expenses.forEach(e=>{ if(e.who==="Edesse")d+=+e.amount||0; else if(e.who==="Loan")m+=+e.amount||0; });
+  let d=0,m=0; S.expenses.forEach(e=>{ if(e.who==="Loan")d+=+e.amount||0; else if(e.who==="Edesse")m+=+e.amount||0; });
   return {d,m,total:d+m,diff:(d+m)/2 - d};
 }
 
@@ -451,7 +387,7 @@ function renderAccueil(){
 }
 function whoSplit(){
   const open=S.todos.filter(t=>!t.done);
-  const by={};["Edesse","Loan","Les deux"].forEach(w=>by[w]=open.filter(t=>t.who===w).length);
+  const by={};["Loan","Edesse","Les deux"].forEach(w=>by[w]=open.filter(t=>t.who===w).length);
   if(!open.length) return `<div class="empty">Tout est coché 🎉</div>`;
   return Object.entries(by).map(([w,n])=>
     `<div class="row" style="border:none;padding:6px 0"><span class="who ${whoCls(w)}">${w}</span>
@@ -490,8 +426,8 @@ function drawFlight(pct){
 /* ---------- À FAIRE ---------- */
 let filterWho="Tous";
 function renderAfaire(){
-  const cats=["Admin & visa","Vols","Logement","Sur place","Loan / stage","Edesse"];
-  const catColor={"Admin & visa":"var(--gold)","Vols":"var(--indigo)","Logement":"var(--green)","Sur place":"var(--red)","Loan / stage":"var(--indigo)","Edesse":"var(--red)"};
+  const cats=["Admin & visa","Vols","Logement","Sur place","Edesse / stage","Loan"];
+  const catColor={"Admin & visa":"var(--gold)","Vols":"var(--indigo)","Logement":"var(--green)","Sur place":"var(--red)","Edesse / stage":"var(--indigo)","Loan":"var(--red)"};
   const list=S.todos.filter(t=>filterWho==="Tous"||t.who===filterWho);
   let body="";
   cats.forEach(c=>{
@@ -511,13 +447,13 @@ function renderAfaire(){
     <h2>À faire</h2>
     <p class="lead">Coche au fur et à mesure. La couleur dit qui s'en occupe.</p>
     <div class="chips" id="whoChips">
-      ${["Tous","Edesse","Loan","Les deux"].map(w=>`<button class="chip ${filterWho===w?"on":""}" data-who="${w}">${w}</button>`).join("")}
+      ${["Tous","Loan","Edesse","Les deux"].map(w=>`<button class="chip ${filterWho===w?"on":""}" data-who="${w}">${w}</button>`).join("")}
     </div>
     <div class="card">${body}</div>
     <div class="add">
       <input id="ntText" class="full" placeholder="Nouvelle tâche…">
       <select id="ntCat">${cats.map(c=>`<option>${c}</option>`).join("")}</select>
-      <select id="ntWho"><option>Les deux</option><option>Edesse</option><option>Loan</option></select>
+      <select id="ntWho"><option>Les deux</option><option>Loan</option><option>Edesse</option></select>
       <button class="btn" id="ntAdd">Ajouter</button>
     </div>`;
   document.querySelectorAll("[data-tg]").forEach(b=>b.onclick=()=>toggleTodo(b.dataset.tg));
@@ -642,8 +578,8 @@ function renderDepenses(){
   let settle="";
   if(bal.total>0){
     if(Math.abs(bal.diff)<1) settle=`Vous êtes à l'équilibre ✓`;
-    else if(bal.diff>0) settle=`Loan doit <strong>${eur(bal.diff)}</strong> à Edesse`;
-    else settle=`Edesse doit <strong>${eur(-bal.diff)}</strong> à Loan`;
+    else if(bal.diff>0) settle=`Edesse doit <strong>${eur(bal.diff)}</strong> à Loan`;
+    else settle=`Loan doit <strong>${eur(-bal.diff)}</strong> à Edesse`;
   }
   P("depenses").innerHTML=`
     <div class="eyebrow">Suivi réel</div>
@@ -651,15 +587,15 @@ function renderDepenses(){
     <p class="lead">Note ce qui est payé et par qui. L'équilibrage entre vous deux se calcule tout seul.</p>
     <div class="grid g3">
       <div class="stat red"><div class="k">Total dépensé</div><div class="v">${eur(bal.total)}</div></div>
-      <div class="stat"><div class="k">Payé par Edesse</div><div class="v">${eur(bal.d)}</div></div>
-      <div class="stat"><div class="k">Payé par Loan</div><div class="v">${eur(bal.m)}</div></div>
+      <div class="stat"><div class="k">Payé par Loan</div><div class="v">${eur(bal.d)}</div></div>
+      <div class="stat"><div class="k">Payé par Edesse</div><div class="v">${eur(bal.m)}</div></div>
     </div>
     ${bal.total>0?`<div class="card" style="margin-top:12px;text-align:center">${settle}</div>`:""}
     <div class="card" style="margin-top:14px">${rows||`<div class="empty">Aucune dépense pour l'instant.</div>`}</div>
     <div class="add">
       <input id="exLabel" placeholder="Dépense…" style="flex:2 1 150px">
       <input id="exAmt" type="number" placeholder="€" style="flex:0 1 80px">
-      <select id="exWho"><option>Edesse</option><option>Loan</option></select>
+      <select id="exWho"><option>Loan</option><option>Edesse</option></select>
       <input id="exDate" type="date">
       <button class="btn" id="exAdd">Ajouter</button>
     </div>`;
@@ -699,7 +635,7 @@ function renderCarte(){
   P("carte").innerHTML=`
     <div class="eyebrow">Repérage</div>
     <h2>Carte & lieux</h2>
-    <p class="lead">Pose tes points : à visiter, logements potentiels, l'entreprise de Loan. Chaque lieu s'ouvre dans Google Maps.</p>
+    <p class="lead">Pose tes points : à visiter, logements potentiels, l'entreprise de Edesse. Chaque lieu s'ouvre dans Google Maps.</p>
     <div id="map"></div>
     <div class="map-note">Astuce : pour placer un point précis, ouvre Google Maps, clic droit sur l'endroit → clique sur les chiffres (coordonnées) pour les copier, puis colle-les ci-dessous.</div>
     <div class="card">${body||`<div class="empty">Aucun lieu. Ajoute-en un ci-dessous.</div>`}</div>
